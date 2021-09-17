@@ -1,6 +1,7 @@
 package router
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/gzip"
 	"github.com/jinzhu/gorm"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -17,7 +18,8 @@ func Setup(db *gorm.DB) *gin.Engine {
 	// Middlewares
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-	r.Use(middleware.CORS())
+	r.Use(cors.Default())
+
 	r.Use(gzip.Gzip(gzip.DefaultCompression))
 	r.Use(middleware.Security())
 	r.Use(middleware.MyLimit())
@@ -33,7 +35,15 @@ func Setup(db *gorm.DB) *gin.Engine {
 		posts.PUT("/:id", api.UpdatePost)
 		posts.DELETE("/:id", api.DeletePost)
 	}
-
+	// Non-protected routes
+	authors := r.Group("/authors")
+	{
+		authors.GET("/", api.GetAuthors)
+		authors.GET("/:id", api.GetAuthor)
+		authors.POST("/", api.CreateAuthor)
+		authors.PUT("/:id", api.UpdateAuthor)
+		authors.DELETE("/:id", api.DeleteAuthor)
+	}
 	// JWT-protected routes
 	postsjwt := r.Group("/postsjwt", middleware.Authorize())
 	{

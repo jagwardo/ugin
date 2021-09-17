@@ -8,33 +8,33 @@ import (
 	"github.com/yakuter/ugin/model"
 )
 
-func GetPost(db *gorm.DB, id string) (*model.Post, error) {
+func GetAuthor(db *gorm.DB, id string) (*model.Author, error) {
 	var err error
-	post := new(model.Post)
+	author := new(model.Author)
 
-	if err := db.Where("id = ? ", id).Preload("Tags").Preload("Author").First(&post).Error; err != nil {
+	if err := db.Where("id = ? ", id).First(&author).Error; err != nil {
 		log.Println(err)
 
 		return nil, err
 	}
 
-	return post, err
+	return author, err
 }
 
-func GetPosts(c *gin.Context, db *gorm.DB, args model.Args) ([]model.Post, int64, int64, error) {
-	posts := []model.Post{}
+func GetAuthors(c *gin.Context, db *gorm.DB, args model.Args) ([]model.Author, int64, int64, error) {
+	authors := []model.Author{}
 	var filteredData, totalData int64
 
-	table := "posts"
+	table := "authors"
 	query := db.Select(table + ".*")
 	query = query.Offset(Offset(args.Offset))
 	query = query.Limit(Limit(args.Limit))
 	query = query.Order(SortOrder(table, args.Sort, args.Order))
 	query = query.Scopes(Search(args.Search))
 
-	if err := query.Preload("Tags").Preload("Author").Find(&posts).Error; err != nil {
+	if err := query.Find(&authors).Error; err != nil {
 		log.Println(err)
-		return posts, filteredData, totalData, err
+		return authors, filteredData, totalData, err
 	}
 
 	// // Count filtered table
@@ -46,28 +46,28 @@ func GetPosts(c *gin.Context, db *gorm.DB, args model.Args) ([]model.Post, int64
 	// // Count total table
 	db.Table(table).Count(&totalData)
 
-	return posts, filteredData, totalData, nil
+	return authors, filteredData, totalData, nil
 }
 
 // SavePost both cretes and updates post according to if ID field is empty or not
-func SavePost(db *gorm.DB, post *model.Post) (*model.Post, error) {
-	if err := db.Save(&post).Error; err != nil {
-		return post, err
+func SaveAuthor(db *gorm.DB, author *model.Author) (*model.Author, error) {
+	if err := db.Save(&author).Error; err != nil {
+		return author, err
 	}
 
-	return post, nil
+	return author, nil
 }
 
 // DeletePost soft deletes all records.
-func DeletePost(db *gorm.DB, id string) error {
-	post := new(model.Post)
-	if err := db.Where("id = ? ", id).Delete(&post).Error; err != nil {
+func DeleteAuthor(db *gorm.DB, id string) error {
+	author := new(model.Author)
+	if err := db.Where("id = ? ", id).Delete(&author).Error; err != nil {
 		log.Println(err)
 		return err
 	}
 
 	tag := new(model.Tag)
-	if err := db.Where("post_id = ? ", id).Delete(&tag).Error; err != nil {
+	if err := db.Where("author_id = ? ", id).Delete(&tag).Error; err != nil {
 		log.Println(err)
 	}
 

@@ -21,9 +21,12 @@ type Args struct {
 
 type Post struct {
 	gorm.Model
-	Name        string `json:"Name" gorm:"type:varchar(255)"`
-	Description string `json:"Description"  gorm:"type:text"`
-	Tags        []Tag  // One-To-Many relationship (has many - use Tag's UserID as foreign key)
+	Title       string `json:"Title" gorm:"type:varchar(255)"`
+	Description string `json:"Description" gorm:"type:text"`
+	Content     string `gorm:"type:longtext" json:"Content"`
+	Author      Author `json:"Author" binding:"required" gorm:"foreignkey:AuthorID"`
+	AuthorID    uint64
+	Tags        []Tag // One-To-Many relationship (has many - use Tag's UserID as foreign key)
 }
 
 type Tag struct {

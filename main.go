@@ -3,11 +3,10 @@ package main
 import (
 	"log"
 
+	_ "github.com/yakuter/ugin/docs"
 	"github.com/yakuter/ugin/pkg/config"
 	"github.com/yakuter/ugin/pkg/database"
 	"github.com/yakuter/ugin/pkg/router"
-
-	_ "github.com/yakuter/ugin/docs"
 )
 
 func init() {
@@ -34,7 +33,6 @@ func main() {
 
 	db := database.GetDB()
 	r := router.Setup(db)
-
 	log.Printf("Server is starting at 127.0.0.1:%s", config.Server.Port)
 	log.Fatal(r.Run("127.0.0.1:" + config.Server.Port))
 }

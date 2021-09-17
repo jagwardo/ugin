@@ -1,43 +1,39 @@
 package controller
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/yakuter/ugin/model"
 	"github.com/yakuter/ugin/service"
 )
 
-var err error
-
-// GetPost godoc
-// @Summary Show a Post
-// @Description get by ID
-// @Tags posts
+// GetAuthor godoc
+// @Summary Show an Author
 // @ID get-string-by-int
 // @Accept  json
 // @Produce  json
-// @Param id path int true "Post ID"
+// @Param id path int true "Author ID"
 // @Success 200 "Success"
-// @Router /posts/{id} [get]
-func (base *Controller) GetPost(c *gin.Context) {
+// @Router /authors/{id} [get]
+func (base *Controller) GetAuthor(c *gin.Context) {
 	id := c.Params.ByName("id")
 
-	post, err := service.GetPost(base.DB, id)
+	author, err := service.GetAuthor(base.DB, id)
 	if err != nil {
 		c.AbortWithStatus(404)
 	}
 
-	c.JSON(200, post)
+	c.JSON(200, author)
 }
 
-// GetPosts godoc
-// @Summary List posts
-// @Description get posts
-// @Tags posts
+// GetAuthors godoc
+// @Summary List Authors
 // @Accept  json
 // @Produce  json
 // @Success 200 "Success"
-// @Router /posts/ [get]
-func (base *Controller) GetPosts(c *gin.Context) {
+// @Router /authors/ [get]
+func (base *Controller) GetAuthors(c *gin.Context) {
 	var args model.Args
 
 	// Define and get sorting field
@@ -56,16 +52,16 @@ func (base *Controller) GetPosts(c *gin.Context) {
 	args.Search = c.DefaultQuery("Search", "")
 
 	// Fetch results from database
-	posts, filteredData, totalData, err := service.GetPosts(c, base.DB, args)
+	authors, filteredData, totalData, err := service.GetAuthors(c, base.DB, args)
 	if err != nil {
 		c.AbortWithStatus(404)
 	}
 
 	// Fill return data struct
-	data := model.Data{
+	data := model.AuthorList{
 		TotalData:    totalData,
 		FilteredData: filteredData,
-		Data:         posts,
+		Data:         authors,
 	}
 
 	c.JSON(200, data)
@@ -74,28 +70,31 @@ func (base *Controller) GetPosts(c *gin.Context) {
 // CreatePost godoc
 // @Summary Create Post
 // @Description Create Post
+// @Content Create Post
 // @Tags posts
 // @Accept  json
 // @Produce  json
 // @Param Post body object true "Post"
 // @Success 200 "Success"
 // @Router /posts/ [post]
-func (base *Controller) CreatePost(c *gin.Context) {
-	post := new(model.Post)
+func (base *Controller) CreateAuthor(c *gin.Context) {
+	author := new(model.Author)
 
-	err := c.ShouldBindJSON(&post)
+	err := c.ShouldBindJSON(&author)
+
 	if err != nil {
+		log.Print(err)
 		c.AbortWithError(400, err)
 		return
 	}
 
-	post, err = service.SavePost(base.DB, post)
+	author, err = service.SaveAuthor(base.DB, author)
 	if err != nil {
-		c.AbortWithError(400, err)
+		c.AbortWithError(404, err)
 		return
 	}
 
-	c.JSON(200, post)
+	c.JSON(200, author)
 }
 
 // UpdatePost godoc
@@ -108,28 +107,28 @@ func (base *Controller) CreatePost(c *gin.Context) {
 // @Param Post body object true "Post"
 // @Success 200 "Success"
 // @Router /posts/{id} [put]
-func (base *Controller) UpdatePost(c *gin.Context) {
+func (base *Controller) UpdateAuthor(c *gin.Context) {
 	id := c.Params.ByName("id")
 
-	post, err := service.GetPost(base.DB, id)
+	author, err := service.GetAuthor(base.DB, id)
 	if err != nil {
 		c.AbortWithStatus(404)
 		return
 	}
 
-	err = c.ShouldBindJSON(&post)
+	err = c.ShouldBindJSON(&author)
 	if err != nil {
 		c.AbortWithStatus(400)
 		return
 	}
 
-	post, err = service.SavePost(base.DB, post)
+	author, err = service.SaveAuthor(base.DB, author)
 	if err != nil {
 		c.AbortWithStatus(404)
 		return
 	}
 
-	c.JSON(200, post)
+	c.JSON(200, author)
 }
 
 // DeletePost godoc
@@ -142,10 +141,10 @@ func (base *Controller) UpdatePost(c *gin.Context) {
 // @Param id path int true "Post ID"
 // @Success 200 "Success"
 // @Router /posts/{id} [delete]
-func (base *Controller) DeletePost(c *gin.Context) {
+func (base *Controller) DeleteAuthor(c *gin.Context) {
 	id := c.Params.ByName("id")
 
-	err = service.DeletePost(base.DB, id)
+	err = service.DeleteAuthor(base.DB, id)
 	if err != nil {
 		c.AbortWithStatus(404)
 		return
