@@ -14,4 +14,5 @@ type Author struct {
 	gorm.Model
 	FirstName string `json:"FirstName" gorm:"type:varchar(255)"`
 	LastName  string `json:"LastName" gorm:"type:varchar(255)"`
+	Image     string `json:"Image" gorm:"type:varchar(255)"`
 }
